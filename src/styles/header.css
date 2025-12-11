@@ -1,0 +1,18 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #111;
+  color: white;
+}
+
+.header a {
+  color: white;
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.header a:hover {
+  text-decoration: underline;
+}
