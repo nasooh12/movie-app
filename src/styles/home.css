@@ -1,0 +1,49 @@
+.home-page {
+  min-height: calc(100vh - 60px);
+  background: radial-gradient(circle at top, #1b2138 0, #050711 55%);
+  color: #fff;
+}
+
+.home-hero {
+  position: relative;
+  height: 220px;
+  padding: 24px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 0, #e50914 0, transparent 55%),
+    radial-gradient(circle at 90% 20%, #f5c451 0, transparent 50%);
+  opacity: 0.6;
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(5, 7, 17, 0.95),
+    rgba(5, 7, 17, 0.5),
+    transparent
+  );
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.home-hero h1 {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.home-hero p {
+  font-size: 14px;
+  color: #e5e5e5;
+}
