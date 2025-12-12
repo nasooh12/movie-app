@@ -1,5 +1,4 @@
 // src/components/MovieSection.tsx
-import { useEffect, useState } from "react";
 import type { Movie } from "../api/tmdb";
 import {
   getPopularMovies,
@@ -7,7 +6,8 @@ import {
   getTopRatedMovies,
   getUpcomingMovies,
 } from "../api/tmdb";
-
+import { useEffect, useState } from "react";
+import { useWishlist } from "../context/WishlistContext";
 import "../styles/movie-section.css";
 
 type SectionType = "popular" | "now_playing" | "top_rated" | "upcoming";
@@ -21,6 +21,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     let cancelled = false;
@@ -51,7 +52,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
         if (!cancelled) {
           setMovies(data.results);
         }
-      } catch  {
+      } catch {
         if (!cancelled) {
           setError("영화 정보를 불러오지 못했습니다.");
         }
@@ -78,25 +79,32 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
 
       {!loading && !error && (
         <div className="movie-row">
-          {movies.map((movie) => (
-            <div key={movie.id} className="movie-card">
-              {movie.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              ) : (
-                <div className="movie-card-placeholder">No Image</div>
-              )}
-              <div className="movie-card-info">
-                <div className="movie-card-title">{movie.title}</div>
-                <div className="movie-card-meta">
-                  <span>⭐ {movie.vote_average.toFixed(1)}</span>
-                  <span>{movie.release_date}</span>
+          {movies.map((movie) => {
+            const wished = isInWishlist(movie.id);
+            return (
+              <div
+                key={movie.id}
+                className={`movie-card ${wished ? "is-wish" : ""}`}
+                onClick={() => toggleWishlist(movie)}
+              >
+                {movie.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                    alt={movie.title}
+                  />
+                ) : (
+                  <div className="movie-card-placeholder">No Image</div>
+                )}
+                <div className="movie-card-info">
+                  <div className="movie-card-title">{movie.title}</div>
+                  <div className="movie-card-meta">
+                    <span>⭐ {movie.vote_average.toFixed(1)}</span>
+                    <span>{movie.release_date}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
