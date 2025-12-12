@@ -1,10 +1,14 @@
 /* src/styles/wishlist.css */
 .wishlist-page {
+  width: 100%;   /* 🔥 이 줄이 핵심: 전체 가로폭 사용 */
+  min-height: calc(100vh - 60px);
   padding: 24px;
   color: #fff;
   background: radial-gradient(circle at top, #1b2138 0, #050711 55%);
-  min-height: calc(100vh - 60px);
+  display: block;
 }
+
+
 
 .wishlist-page h1 {
   font-size: 24px;
