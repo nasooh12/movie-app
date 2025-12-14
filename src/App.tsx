@@ -6,6 +6,7 @@ import SignInPage from "./pages/SignInPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import WishlistPage from "./pages/WishlistPage";
 import PopularPage from "./pages/PopularPage";
+import SearchPage from "./pages/SearchPage";
 
 export default function App() {
   return (
@@ -26,8 +27,8 @@ export default function App() {
           }
         />
 
-        {/* 인기 영화 페이지 - 로그인 필요 */}
-                <Route
+        {/* 인기 영화 페이지 */}
+        <Route
           path="/popular"
           element={
             <ProtectedRoute>
@@ -36,8 +37,17 @@ export default function App() {
           }
         />
 
+        {/* 검색 페이지 */}
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <SearchPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* 추천(Wishlist) 페이지 - 로그인 필요 */}
+        {/* 추천(Wishlist) 페이지 */}
         <Route
           path="/wishlist"
           element={
