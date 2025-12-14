@@ -123,3 +123,23 @@
   background: rgba(229, 9, 20, 0.85);
   border-color: rgba(229, 9, 20, 0.95);
 }
+.movie-card {
+  position: relative;
+}
+
+.movie-card-wish-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(5, 7, 17, 0.75);
+  border: none;
+  border-radius: 999px;
+  padding: 6px 8px;
+  color: #f5c451;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.movie-card-wish-btn:hover {
+  opacity: 0.9;
+}
