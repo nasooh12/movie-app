@@ -59,3 +59,32 @@ export function getTopRatedMovies(page = 1) {
 export function getUpcomingMovies(page = 1) {
   return getMovieList("/movie/upcoming", page);
 }
+
+/**
+ * 영화 검색
+ * @param query 검색어
+ * @param page  페이지 번호 (기본값 1)
+ */
+export async function searchMovies(query: string, page = 1) {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    // 검색어가 비어 있으면 API 호출하지 않고 빈 결과 반환
+    return {
+      page: 1,
+      total_pages: 1,
+      results: [] as Movie[],
+      total_results: 0,
+    };
+  }
+
+  const res = await tmdbClient.get<TMDBListResponse>("/search/movie", {
+    params: {
+      api_key: TMDB_API_KEY,
+      query: trimmed,
+      page,
+      include_adult: false,
+    },
+  });
+
+  return res.data;
+}
