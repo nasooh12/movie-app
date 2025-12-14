@@ -5,7 +5,7 @@ import HomePage from "./pages/HomePage";
 import SignInPage from "./pages/SignInPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import WishlistPage from "./pages/WishlistPage";
-// 추후 PopularPage, SearchPage 등을 추가할 예정입니다.
+import PopularPage from "./pages/PopularPage";
 
 export default function App() {
   return (
@@ -26,6 +26,17 @@ export default function App() {
           }
         />
 
+        {/* 인기 영화 페이지 - 로그인 필요 */}
+                <Route
+          path="/popular"
+          element={
+            <ProtectedRoute>
+              <PopularPage />
+            </ProtectedRoute>
+          }
+        />
+
+
         {/* 추천(Wishlist) 페이지 - 로그인 필요 */}
         <Route
           path="/wishlist"
@@ -36,7 +47,7 @@ export default function App() {
           }
         />
 
-        {/* 앞으로 추가될 예정: 인기영화, 검색 페이지 */}
+        {/* 잘못된 주소는 홈으로 */}
         <Route
           path="*"
           element={
