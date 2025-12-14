@@ -1,6 +1,7 @@
 // src/pages/SearchPage.tsx
 import { useState } from "react";
 import type { FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
 import { searchMovies } from "../api/tmdb";
 import { useWishlist } from "../context/WishlistContext";
@@ -22,6 +23,7 @@ export default function SearchPage() {
   const [hasSearched, setHasSearched] = useState(false);
 
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   const fetchSearch = async (pageToLoad: number) => {
     const trimmed = query.trim();
@@ -97,12 +99,32 @@ export default function SearchPage() {
           <div className="search-grid">
             {movies.map((movie) => {
               const wished = isInWishlist(movie.id);
+
               return (
                 <div
                   key={movie.id}
                   className={`search-card ${wished ? "is-wish" : ""}`}
-                  onClick={() => toggleWishlist(movie)}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      navigate(`/movie/${movie.id}`);
+                    }
+                  }}
                 >
+                  {/* ✅ 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
+                  <button
+                    type="button"
+                    className={`wishlist-btn ${wished ? "on" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(movie);
+                    }}
+                  >
+                    {wished ? "추천 해제" : "추천"}
+                  </button>
+
                   {movie.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
