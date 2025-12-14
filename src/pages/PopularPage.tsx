@@ -18,8 +18,9 @@ export default function PopularPage() {
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { toggleWishlist, isInWishlist } = useWishlist();
+
   const navigate = useNavigate();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const fetchPage = async (pageToLoad: number) => {
     try {
@@ -71,27 +72,13 @@ export default function PopularPage() {
                 <div
                   key={movie.id}
                   className={`popular-card ${wished ? "is-wish" : ""}`}
-                  onClick={() => navigate(`/movie/${movie.id}`)}
                   role="button"
                   tabIndex={0}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      navigate(`/movie/${movie.id}`);
-                    }
+                    if (e.key === "Enter") navigate(`/movie/${movie.id}`);
                   }}
                 >
-                  {/* ✅ 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
-                  <button
-                    type="button"
-                    className={`wishlist-btn ${wished ? "on" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(movie);
-                    }}
-                  >
-                    {wished ? "추천 해제" : "추천"}
-                  </button>
-
                   {movie.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
@@ -100,6 +87,7 @@ export default function PopularPage() {
                   ) : (
                     <div className="popular-card-placeholder">No Image</div>
                   )}
+
                   <div className="popular-card-info">
                     <div className="popular-card-title">{movie.title}</div>
                     <div className="popular-card-meta">
@@ -107,6 +95,17 @@ export default function PopularPage() {
                       <span>{movie.release_date}</span>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    className="popular-card-wish-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(movie);
+                    }}
+                  >
+                    {wished ? "★" : "☆"}
+                  </button>
                 </div>
               );
             })}
