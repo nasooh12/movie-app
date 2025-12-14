@@ -7,8 +7,8 @@ import {
   getUpcomingMovies,
 } from "../api/tmdb";
 import { useEffect, useState } from "react";
-import { useWishlist } from "../context/WishlistContext";
 import { useNavigate } from "react-router-dom";
+import { useWishlist } from "../context/WishlistContext";
 import "../styles/movie-section.css";
 
 type SectionType = "popular" | "now_playing" | "top_rated" | "upcoming";
@@ -22,8 +22,9 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { toggleWishlist, isInWishlist } = useWishlist();
+
   const navigate = useNavigate();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
     let cancelled = false;
@@ -65,8 +66,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
       }
     }
 
-    void fetchMovies();
-
+    fetchMovies();
     return () => {
       cancelled = true;
     };
@@ -88,27 +88,15 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
               <div
                 key={movie.id}
                 className={`movie-card ${wished ? "is-wish" : ""}`}
-                onClick={() => navigate(`/movie/${movie.id}`)}
                 role="button"
                 tabIndex={0}
+                onClick={() => navigate(`/movie/${movie.id}`)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     navigate(`/movie/${movie.id}`);
                   }
                 }}
               >
-                {/* 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
-                <button
-                  type="button"
-                  className={`wishlist-btn ${wished ? "on" : ""}`}
-                  onClick={(e) => {
-                    e.stopPropagation(); // ⭐ 핵심
-                    toggleWishlist(movie);
-                  }}
-                >
-                  {wished ? "추천 해제" : "추천"}
-                </button>
-
                 {movie.poster_path ? (
                   <img
                     src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
@@ -125,6 +113,18 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
                     <span>{movie.release_date}</span>
                   </div>
                 </div>
+
+                {/* 추천 버튼 */}
+                <button
+                  type="button"
+                  className="movie-card-wish-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(movie);
+                  }}
+                >
+                  {wished ? "★" : "☆"}
+                </button>
               </div>
             );
           })}
