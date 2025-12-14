@@ -1,12 +1,15 @@
 // src/App.tsx
 import { Routes, Route } from "react-router-dom";
+
 import Header from "./components/Header";
-import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import WishlistPage from "./pages/WishlistPage";
+
+import SignInPage from "./pages/SignInPage";
+import HomePage from "./pages/HomePage";
 import PopularPage from "./pages/PopularPage";
 import SearchPage from "./pages/SearchPage";
+import WishlistPage from "./pages/WishlistPage";
+import MovieDetailPage from "./pages/MovieDetailPage";
 
 export default function App() {
   return (
@@ -17,7 +20,7 @@ export default function App() {
         {/* 로그인 페이지 */}
         <Route path="/signin" element={<SignInPage />} />
 
-        {/* 메인 홈 페이지 - 로그인 필요 */}
+        {/* 홈 */}
         <Route
           path="/"
           element={
@@ -27,7 +30,7 @@ export default function App() {
           }
         />
 
-        {/* 인기 영화 페이지 */}
+        {/* 인기 */}
         <Route
           path="/popular"
           element={
@@ -37,7 +40,7 @@ export default function App() {
           }
         />
 
-        {/* 검색 페이지 */}
+        {/* 검색 */}
         <Route
           path="/search"
           element={
@@ -47,7 +50,7 @@ export default function App() {
           }
         />
 
-        {/* 추천(Wishlist) 페이지 */}
+        {/* 추천(위시리스트) */}
         <Route
           path="/wishlist"
           element={
@@ -57,7 +60,17 @@ export default function App() {
           }
         />
 
-        {/* 잘못된 주소는 홈으로 */}
+        {/* 영화 상세 */}
+        <Route
+          path="/movie/:id"
+          element={
+            <ProtectedRoute>
+              <MovieDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 나머지 잘못된 경로는 홈으로 */}
         <Route
           path="*"
           element={
