@@ -88,3 +88,13 @@ export async function searchMovies(query: string, page = 1) {
 
   return res.data;
 }
+
+export async function getMovieDetail(movieId: number) {
+  const res = await tmdbClient.get(`/movie/${movieId}`, {
+    params: {
+      api_key: TMDB_API_KEY,
+      language: "ko-KR",
+    },
+  });
+  return res.data;
+}

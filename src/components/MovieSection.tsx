@@ -8,6 +8,7 @@ import {
 } from "../api/tmdb";
 import { useEffect, useState } from "react";
 import { useWishlist } from "../context/WishlistContext";
+import { useNavigate } from "react-router-dom";
 import "../styles/movie-section.css";
 
 type SectionType = "popular" | "now_playing" | "top_rated" | "upcoming";
@@ -22,6 +23,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +65,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
       }
     }
 
-    fetchMovies();
+    void fetchMovies();
 
     return () => {
       cancelled = true;
@@ -81,12 +83,32 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
         <div className="movie-row">
           {movies.map((movie) => {
             const wished = isInWishlist(movie.id);
+
             return (
               <div
                 key={movie.id}
                 className={`movie-card ${wished ? "is-wish" : ""}`}
-                onClick={() => toggleWishlist(movie)}
+                onClick={() => navigate(`/movie/${movie.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/movie/${movie.id}`);
+                  }
+                }}
               >
+                {/* 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
+                <button
+                  type="button"
+                  className={`wishlist-btn ${wished ? "on" : ""}`}
+                  onClick={(e) => {
+                    e.stopPropagation(); // ⭐ 핵심
+                    toggleWishlist(movie);
+                  }}
+                >
+                  {wished ? "추천 해제" : "추천"}
+                </button>
+
                 {movie.poster_path ? (
                   <img
                     src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
@@ -95,6 +117,7 @@ export default function MovieSection({ title, type }: MovieSectionProps) {
                 ) : (
                   <div className="movie-card-placeholder">No Image</div>
                 )}
+
                 <div className="movie-card-info">
                   <div className="movie-card-title">{movie.title}</div>
                   <div className="movie-card-meta">

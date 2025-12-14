@@ -1,5 +1,6 @@
 // src/pages/PopularPage.tsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
 import { getPopularMovies } from "../api/tmdb";
 import { useWishlist } from "../context/WishlistContext";
@@ -18,6 +19,7 @@ export default function PopularPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const navigate = useNavigate();
 
   const fetchPage = async (pageToLoad: number) => {
     try {
@@ -64,12 +66,32 @@ export default function PopularPage() {
           <div className="popular-grid">
             {movies.map((movie) => {
               const wished = isInWishlist(movie.id);
+
               return (
                 <div
                   key={movie.id}
                   className={`popular-card ${wished ? "is-wish" : ""}`}
-                  onClick={() => toggleWishlist(movie)}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      navigate(`/movie/${movie.id}`);
+                    }
+                  }}
                 >
+                  {/* ✅ 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
+                  <button
+                    type="button"
+                    className={`wishlist-btn ${wished ? "on" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(movie);
+                    }}
+                  >
+                    {wished ? "추천 해제" : "추천"}
+                  </button>
+
                   {movie.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}

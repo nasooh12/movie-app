@@ -27,6 +27,8 @@
 }
 
 .wishlist-card {
+  position: relative;
+  cursor: pointer;
   background: #14151f;
   border-radius: 8px;
   overflow: hidden;

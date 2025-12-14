@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
-import "../styles/movieCard.css";
+import { useWishlist } from "../context/WishlistContext";
 
 type Props = {
   movie: Movie;
@@ -8,6 +8,9 @@ type Props = {
 
 export default function MovieCard({ movie }: Props) {
   const navigate = useNavigate();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const wished = isInWishlist(movie.id);
 
   return (
     <div
@@ -15,11 +18,6 @@ export default function MovieCard({ movie }: Props) {
       onClick={() => navigate(`/movie/${movie.id}`)}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          navigate(`/movie/${movie.id}`);
-        }
-      }}
     >
       {movie.poster_path ? (
         <img
@@ -27,10 +25,21 @@ export default function MovieCard({ movie }: Props) {
           alt={movie.title}
         />
       ) : (
-        <div className="movie-card-placeholder">No Image</div>
+        <div>No Image</div>
       )}
 
       <div className="movie-card-title">{movie.title}</div>
+
+      <button
+        type="button"
+        className={`wishlist-btn ${wished ? "on" : ""}`}
+        onClick={(e) => {
+          e.stopPropagation(); // ⭐ 이게 핵심
+          toggleWishlist(movie);
+        }}
+      >
+        {wished ? "추천 해제" : "추천"}
+      </button>
     </div>
   );
 }
