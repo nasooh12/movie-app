@@ -111,3 +111,15 @@
   font-size: 13px;
   color: #ddd;
 }
+
+/* 추천된 카드 강조 */
+.popular-card.is-wish {
+  outline: 2px solid #e50914;
+  box-shadow: 0 0 0 1px rgba(229, 9, 20, 0.45),
+    0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
+.popular-card.is-wish .popular-card-title::after {
+  content: " ★";
+  color: #f5c451;
+}

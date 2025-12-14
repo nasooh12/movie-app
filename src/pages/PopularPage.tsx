@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import type { Movie } from "../api/tmdb";
 import { getPopularMovies } from "../api/tmdb";
+import { useWishlist } from "../context/WishlistContext";
 import "../styles/popular.css";
 
 type TmdbMovieResponse = {
@@ -16,11 +17,13 @@ export default function PopularPage() {
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const fetchPage = async (pageToLoad: number) => {
     try {
       setLoading(true);
       setError(null);
+
       const data = (await getPopularMovies(
         pageToLoad
       )) as unknown as TmdbMovieResponse;
@@ -59,25 +62,32 @@ export default function PopularPage() {
       {!loading && !error && (
         <>
           <div className="popular-grid">
-            {movies.map((movie) => (
-              <div key={movie.id} className="popular-card">
-                {movie.poster_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                    alt={movie.title}
-                  />
-                ) : (
-                  <div className="popular-card-placeholder">No Image</div>
-                )}
-                <div className="popular-card-info">
-                  <div className="popular-card-title">{movie.title}</div>
-                  <div className="popular-card-meta">
-                    <span>⭐ {movie.vote_average.toFixed(1)}</span>
-                    <span>{movie.release_date}</span>
+            {movies.map((movie) => {
+              const wished = isInWishlist(movie.id);
+              return (
+                <div
+                  key={movie.id}
+                  className={`popular-card ${wished ? "is-wish" : ""}`}
+                  onClick={() => toggleWishlist(movie)}
+                >
+                  {movie.poster_path ? (
+                    <img
+                      src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                      alt={movie.title}
+                    />
+                  ) : (
+                    <div className="popular-card-placeholder">No Image</div>
+                  )}
+                  <div className="popular-card-info">
+                    <div className="popular-card-title">{movie.title}</div>
+                    <div className="popular-card-meta">
+                      <span>⭐ {movie.vote_average.toFixed(1)}</span>
+                      <span>{movie.release_date}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="popular-pagination">
