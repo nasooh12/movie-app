@@ -1,10 +1,10 @@
 // src/pages/SearchPage.tsx
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
 import { searchMovies } from "../api/tmdb";
 import { useWishlist } from "../context/WishlistContext";
+import { useNavigate } from "react-router-dom";
 import "../styles/search.css";
 
 type TmdbMovieResponse = {
@@ -22,8 +22,8 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const { toggleWishlist, isInWishlist } = useWishlist();
   const navigate = useNavigate();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const fetchSearch = async (pageToLoad: number) => {
     const trimmed = query.trim();
@@ -37,6 +37,7 @@ export default function SearchPage() {
     try {
       setLoading(true);
       setError(null);
+
       const data = (await searchMovies(
         trimmed,
         pageToLoad
@@ -104,27 +105,13 @@ export default function SearchPage() {
                 <div
                   key={movie.id}
                   className={`search-card ${wished ? "is-wish" : ""}`}
-                  onClick={() => navigate(`/movie/${movie.id}`)}
                   role="button"
                   tabIndex={0}
+                  onClick={() => navigate(`/movie/${movie.id}`)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      navigate(`/movie/${movie.id}`);
-                    }
+                    if (e.key === "Enter") navigate(`/movie/${movie.id}`);
                   }}
                 >
-                  {/* ✅ 추천 버튼: 클릭 시 상세이동 막고 추천만 토글 */}
-                  <button
-                    type="button"
-                    className={`wishlist-btn ${wished ? "on" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleWishlist(movie);
-                    }}
-                  >
-                    {wished ? "추천 해제" : "추천"}
-                  </button>
-
                   {movie.poster_path ? (
                     <img
                       src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
@@ -133,6 +120,7 @@ export default function SearchPage() {
                   ) : (
                     <div className="search-card-placeholder">No Image</div>
                   )}
+
                   <div className="search-card-info">
                     <div className="search-card-title">{movie.title}</div>
                     <div className="search-card-meta">
@@ -140,6 +128,17 @@ export default function SearchPage() {
                       <span>{movie.release_date}</span>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    className="search-card-wish-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleWishlist(movie);
+                    }}
+                  >
+                    {wished ? "★" : "☆"}
+                  </button>
                 </div>
               );
             })}
