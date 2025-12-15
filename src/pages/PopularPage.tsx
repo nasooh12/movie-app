@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
 import { getPopularMovies } from "../api/tmdb";
 import { useWishlist } from "../context/WishlistContext";
+import PageHero from "../components/PageHero";
 import "../styles/popular.css";
 
 type TmdbMovieResponse = {
@@ -50,12 +51,11 @@ export default function PopularPage() {
 
   return (
     <div className="popular-page">
-      <div className="popular-header">
-        <h1>인기 영화</h1>
-        <p className="popular-subtitle">
-          현재 TMDB 기준으로 인기 있는 영화들을 보여줍니다.
-        </p>
-      </div>
+      <PageHero
+        title="인기 영화"
+        subtitle="현재 TMDB 기준으로 인기 있는 영화들을 보여줍니다."
+        variant="popular"
+      />
 
       {loading && (
         <div className="popular-status">로딩 중입니다. 잠시만 기다려주세요…</div>

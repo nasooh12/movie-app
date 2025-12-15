@@ -5,6 +5,7 @@ import type { Movie } from "../api/tmdb";
 import { searchMovies } from "../api/tmdb";
 import { useWishlist } from "../context/WishlistContext";
 import { useNavigate } from "react-router-dom";
+import PageHero from "../components/PageHero";
 import "../styles/search.css";
 
 type TmdbMovieResponse = {
@@ -64,12 +65,11 @@ export default function SearchPage() {
 
   return (
     <div className="search-page">
-      <div className="search-header">
-        <h1>영화 검색</h1>
-        <p className="search-subtitle">
-          영화 제목으로 TMDB에서 검색할 수 있습니다.
-        </p>
-      </div>
+      <PageHero
+        title="영화 검색"
+        subtitle="영화 제목으로 TMDB에서 검색할 수 있습니다."
+        variant="search"
+      />
 
       <form className="search-form" onSubmit={handleSubmit}>
         <input
@@ -171,3 +171,4 @@ export default function SearchPage() {
     </div>
   );
 }
+

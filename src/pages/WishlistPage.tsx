@@ -1,6 +1,7 @@
 // src/pages/WishlistPage.tsx
 import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
+import PageHero from "../components/PageHero";
 import "../styles/wishlist.css";
 
 export default function WishlistPage() {
@@ -10,7 +11,12 @@ export default function WishlistPage() {
   if (wishlist.length === 0) {
     return (
       <div className="wishlist-page">
-        <h1>추천 영화</h1>
+        <PageHero
+          title="추천 영화"
+          subtitle="내가 추천한(위시리스트) 영화 목록입니다."
+          variant="wishlist"
+        />
+
         <p className="wishlist-empty">
           아직 추천한 영화가 없습니다. 홈 화면에서 마음에 드는 영화를
           클릭해보세요.
@@ -21,7 +27,12 @@ export default function WishlistPage() {
 
   return (
     <div className="wishlist-page">
-      <h1>추천 영화</h1>
+      <PageHero
+        title="추천 영화"
+        subtitle="내가 추천한(위시리스트) 영화 목록입니다."
+        variant="wishlist"
+      />
+
       <div className="wishlist-grid">
         {wishlist.map((movie) => (
           <div
