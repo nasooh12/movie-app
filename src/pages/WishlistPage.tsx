@@ -22,19 +22,16 @@ export default function WishlistPage() {
   return (
     <div className="wishlist-page">
       <h1>추천 영화</h1>
-
       <div className="wishlist-grid">
         {wishlist.map((movie) => (
           <div
             key={movie.id}
             className="wishlist-card"
-            onClick={() => navigate(`/movie/${movie.id}`)}
             role="button"
             tabIndex={0}
+            onClick={() => navigate(`/movie/${movie.id}`)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                navigate(`/movie/${movie.id}`);
-              }
+              if (e.key === "Enter") navigate(`/movie/${movie.id}`);
             }}
           >
             {movie.poster_path ? (
@@ -53,12 +50,11 @@ export default function WishlistPage() {
                 <span>{movie.release_date}</span>
               </div>
 
-              {/* ✅ 추천 취소 버튼: 클릭 시 상세이동 막고 추천만 해제 */}
               <button
                 type="button"
                 className="wishlist-remove-button"
                 onClick={(e) => {
-                  e.stopPropagation(); // ⭐ 핵심
+                  e.stopPropagation();
                   toggleWishlist(movie);
                 }}
               >
