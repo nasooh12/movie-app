@@ -1,9 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
 import "../styles/header.css";
 
 export default function Header() {
   const { isLoggedIn, currentUser, logout } = useAuth();
+  const { wishlist } = useWishlist();
+  const wishCount = wishlist.length;
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,10 +33,7 @@ export default function Header() {
 
         {isLoggedIn && (
           <nav className="nav">
-            <Link
-              to="/"
-              className={location.pathname === "/" ? "active" : ""}
-            >
+            <Link to="/" className={location.pathname === "/" ? "active" : ""}>
               Home
             </Link>
             <Link
@@ -47,11 +48,16 @@ export default function Header() {
             >
               Search
             </Link>
+
+            {/* ✅ Wishlist 링크 + 뱃지 */}
             <Link
               to="/wishlist"
-              className={location.pathname === "/wishlist" ? "active" : ""}
+              className={`${location.pathname === "/wishlist" ? "active" : ""} nav-link-with-badge`}
             >
               Wishlist
+              {wishCount > 0 && (
+                <span className="wishlist-badge">{wishCount}</span>
+              )}
             </Link>
           </nav>
         )}
