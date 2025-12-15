@@ -2,23 +2,15 @@
 .popular-page {
   width: 100%;
   min-height: calc(100vh - 60px);
-  padding: 24px;
+  padding: 0 24px 24px;
   color: #fff;
   background: radial-gradient(circle at top, #1b2138 0, #050711 55%);
 }
 
-.popular-header h1 {
-  font-size: 24px;
-  margin: 0 0 4px;
-}
-
-.popular-subtitle {
-  margin: 0 0 16px;
-  font-size: 14px;
-  color: #ccc;
-}
+/* 기존 popular-header / popular-subtitle 는 PageHero로 대체되어 제거 */
 
 .popular-status {
+  margin-top: 14px;
   font-size: 14px;
   color: #ccc;
 }
@@ -31,21 +23,27 @@
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .popular-card {
-  position: relative; /* ✅ 추천 버튼을 카드 위에 얹기 위해 필요 */
+  position: relative;
   background: #14151f;
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, outline 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  outline: none;
 }
 
 .popular-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+
+.popular-card:focus-visible {
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.55),
+    0 12px 24px rgba(0, 0, 0, 0.6);
 }
 
 .popular-card img {
@@ -79,8 +77,42 @@
   color: #bbb;
 }
 
+/* 카드 우측 상단 위시 버튼 */
+.popular-card-wish-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(5, 7, 17, 0.55);
+  color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+
+.popular-card-wish-btn:hover {
+  background: rgba(5, 7, 17, 0.75);
+  transform: translateY(-1px);
+}
+
+/* 추천된 카드 강조 */
+.popular-card.is-wish {
+  outline: 2px solid #e50914;
+  box-shadow: 0 0 0 1px rgba(229, 9, 20, 0.45),
+    0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
+.popular-card.is-wish .popular-card-title::after {
+  content: " ★";
+  color: #f5c451;
+}
+
 .popular-pagination {
-  margin-top: 16px;
+  margin-top: 18px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -111,68 +143,4 @@
 .page-info {
   font-size: 13px;
   color: #ddd;
-}
-
-/* ✅ 추천 버튼 (PopularPage 전용) */
-.wishlist-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(5, 7, 17, 0.65);
-  color: #fff;
-  font-size: 12px;
-  cursor: pointer;
-
-  transition: transform 0.1s ease, opacity 0.15s ease, background 0.15s ease;
-}
-
-.wishlist-btn:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-}
-
-.wishlist-btn.on {
-  background: rgba(229, 9, 20, 0.85);
-  border-color: rgba(229, 9, 20, 0.95);
-}
-
-/* 추천된 카드 강조 */
-.popular-card.is-wish {
-  outline: 2px solid #e50914;
-  box-shadow: 0 0 0 1px rgba(229, 9, 20, 0.45),
-    0 10px 24px rgba(0, 0, 0, 0.7);
-}
-
-.popular-card.is-wish .popular-card-title::after {
-  content: " ★";
-  color: #f5c451;
-}
-.popular-card:focus-visible {
-  outline: 2px solid #f5c451;
-  outline-offset: 2px;
-}
-.popular-card {
-  position: relative;
-}
-
-.popular-card-wish-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(5, 7, 17, 0.75);
-  border: none;
-  border-radius: 999px;
-  padding: 6px 8px;
-  color: #f5c451;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.popular-card-wish-btn:hover {
-  opacity: 0.9;
 }
