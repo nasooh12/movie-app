@@ -108,3 +108,46 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
   opacity: 0.95;
 }
+/* 탭 전환 애니메이션: form remount 시 실행됨 */
+.auth-form {
+  animation: authFadeSlide 220ms ease;
+}
+
+@keyframes authFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 체크박스 라인 */
+.auth-checkline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #ddd;
+}
+
+.auth-checkline input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.auth-checkline-sub {
+  color: #aaa;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* 버튼 disabled 표시 (없으면 추가) */
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
