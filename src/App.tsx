@@ -1,5 +1,5 @@
 // src/App.tsx
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Header from "./components/Header";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -11,75 +11,84 @@ import SearchPage from "./pages/SearchPage";
 import WishlistPage from "./pages/WishlistPage";
 import MovieDetailPage from "./pages/MovieDetailPage";
 
+import "./styles/app-shell.css";
+
 export default function App() {
+  const location = useLocation();
+
   return (
     <>
       <Header />
 
-      <Routes>
-        {/* 로그인 페이지 */}
-        <Route path="/signin" element={<SignInPage />} />
+      <div className="app-shell">
+        {/* ✅ 경로가 바뀔 때마다 page가 재마운트 → 애니메이션 재실행 */}
+        <div className="page" key={location.pathname}>
+          <Routes location={location}>
+            {/* 로그인 페이지 */}
+            <Route path="/signin" element={<SignInPage />} />
 
-        {/* 홈 */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
+            {/* 홈 */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 인기 */}
-        <Route
-          path="/popular"
-          element={
-            <ProtectedRoute>
-              <PopularPage />
-            </ProtectedRoute>
-          }
-        />
+            {/* 인기 */}
+            <Route
+              path="/popular"
+              element={
+                <ProtectedRoute>
+                  <PopularPage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 검색 */}
-        <Route
-          path="/search"
-          element={
-            <ProtectedRoute>
-              <SearchPage />
-            </ProtectedRoute>
-          }
-        />
+            {/* 검색 */}
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute>
+                  <SearchPage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 추천(위시리스트) */}
-        <Route
-          path="/wishlist"
-          element={
-            <ProtectedRoute>
-              <WishlistPage />
-            </ProtectedRoute>
-          }
-        />
+            {/* 추천(위시리스트) */}
+            <Route
+              path="/wishlist"
+              element={
+                <ProtectedRoute>
+                  <WishlistPage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 영화 상세 */}
-        <Route
-          path="/movie/:id"
-          element={
-            <ProtectedRoute>
-              <MovieDetailPage />
-            </ProtectedRoute>
-          }
-        />
+            {/* 영화 상세 */}
+            <Route
+              path="/movie/:id"
+              element={
+                <ProtectedRoute>
+                  <MovieDetailPage />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* 나머지 잘못된 경로는 홈으로 */}
-        <Route
-          path="*"
-          element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+            {/* 나머지 잘못된 경로는 홈으로 */}
+            <Route
+              path="*"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </div>
     </>
   );
 }
