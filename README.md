@@ -90,9 +90,6 @@ TMDB API Key는 **환경 변수**로 관리됩니다.
 VITE_TMDB_API_KEY=YOUR_TMDB_API_KEY
 
 
-> ⚠️ API Key는 코드에 직접 하드코딩하지 않습니다.
-
----
 
 ## ▶️ Installation & Run
 
