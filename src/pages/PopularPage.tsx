@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Movie } from "../api/tmdb";
 import { getPopularMovies } from "../api/tmdb";
@@ -21,9 +21,12 @@ export default function PopularPage() {
 
   const [viewMode, setViewMode] = useState<"table" | "infinite">("table");
   const [hasMore, setHasMore] = useState(true);
+  const [showTop, setShowTop] = useState(false);
 
   const navigate = useNavigate();
   const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const fetchPage = async (pageToLoad: number) => {
     if (loading) return;
@@ -50,31 +53,62 @@ export default function PopularPage() {
     }
   };
 
-  // 최초 로딩 or viewMode 변경 시
+  // viewMode 변경 시 초기화 + 1페이지 로드 + 스크롤 위치 초기화
   useEffect(() => {
     setMovies([]);
     setPage(1);
+    setTotalPages(null);
     setHasMore(true);
+    setError(null);
+
+    window.scrollTo({ top: 0 });
     void fetchPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewMode]);
 
-  // Infinite Scroll 처리
+  // Table View 요구사항: 스크롤 불가 처리
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    if (viewMode === "table") {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [viewMode]);
+
+  // TOP 버튼: 일정 이상 내려가면 표시
+  useEffect(() => {
+    const onScroll = () => {
+      setShowTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Infinite Scroll: 바닥(sentinel) 보이면 다음 페이지 로드
   useEffect(() => {
     if (viewMode !== "infinite") return;
+    if (!sentinelRef.current) return;
 
-    const onScroll = () => {
-      const nearBottom =
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 300;
+    const el = sentinelRef.current;
 
-      if (nearBottom && hasMore && !loading) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (!first?.isIntersecting) return;
+        if (!hasMore || loading) return;
         void fetchPage(page + 1);
-      }
-    };
+      },
+      { root: null, rootMargin: "400px", threshold: 0 }
+    );
 
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [viewMode, page, hasMore, loading]);
+    io.observe(el);
+    return () => io.disconnect();
+  }, [viewMode, hasMore, loading, page]);
 
   const canPrev = page > 1;
   const canNext = totalPages ? page < totalPages : true;
@@ -87,15 +121,16 @@ export default function PopularPage() {
         variant="popular"
       />
 
-      {/* View Mode Toggle */}
       <div className="popular-view-toggle">
         <button
+          type="button"
           className={viewMode === "table" ? "active" : ""}
           onClick={() => setViewMode("table")}
         >
           Table
         </button>
         <button
+          type="button"
           className={viewMode === "infinite" ? "active" : ""}
           onClick={() => setViewMode("infinite")}
         >
@@ -105,90 +140,102 @@ export default function PopularPage() {
 
       {error && <div className="popular-status error">{error}</div>}
 
-      <div className="popular-grid">
-        {movies.map((movie) => {
-          const wished = isInWishlist(movie.id);
+      {/* Table View에서는 화면 안에만 보여야 하니까 wrapper로 높이 제한 */}
+      <div className={viewMode === "table" ? "popular-table-wrap" : ""}>
+        <div className="popular-grid">
+          {movies.map((movie) => {
+            const wished = isInWishlist(movie.id);
 
-          return (
-            <div
-              key={movie.id}
-              className={`popular-card ${wished ? "is-wish" : ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/movie/${movie.id}`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") navigate(`/movie/${movie.id}`);
-              }}
-            >
-              {movie.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              ) : (
-                <div className="popular-card-placeholder">No Image</div>
-              )}
-
-              <div className="popular-card-info">
-                <div className="popular-card-title">{movie.title}</div>
-                <div className="popular-card-meta">
-                  <span>⭐ {movie.vote_average.toFixed(1)}</span>
-                  <span>{movie.release_date}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="popular-card-wish-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleWishlist(movie);
+            return (
+              <div
+                key={movie.id}
+                className={`popular-card ${wished ? "is-wish" : ""}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => navigate(`/movie/${movie.id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") navigate(`/movie/${movie.id}`);
                 }}
               >
-                {wished ? "★" : "☆"}
-              </button>
-            </div>
-          );
-        })}
+                {movie.poster_path ? (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                    alt={movie.title}
+                  />
+                ) : (
+                  <div className="popular-card-placeholder">No Image</div>
+                )}
+
+                <div className="popular-card-info">
+                  <div className="popular-card-title">{movie.title}</div>
+                  <div className="popular-card-meta">
+                    <span>⭐ {movie.vote_average.toFixed(1)}</span>
+                    <span>{movie.release_date}</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="popular-card-wish-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleWishlist(movie);
+                  }}
+                  aria-label={wished ? "추천 해제" : "추천하기"}
+                >
+                  {wished ? "★" : "☆"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Table View Pagination */}
+        {viewMode === "table" && (
+          <div className="popular-pagination">
+            <button
+              type="button"
+              className="page-btn"
+              disabled={!canPrev || loading}
+              onClick={() => void fetchPage(page - 1)}
+            >
+              이전
+            </button>
+            <span className="page-info">
+              {page}
+              {totalPages ? ` / ${totalPages}` : ""}
+            </span>
+            <button
+              type="button"
+              className="page-btn"
+              disabled={!canNext || loading}
+              onClick={() => void fetchPage(page + 1)}
+            >
+              다음
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Pagination (Table View Only) */}
-      {viewMode === "table" && !loading && (
-        <div className="popular-pagination">
-          <button
-            type="button"
-            className="page-btn"
-            disabled={!canPrev}
-            onClick={() => fetchPage(page - 1)}
-          >
-            이전
-          </button>
-          <span className="page-info">
-            {page}
-            {totalPages ? ` / ${totalPages}` : ""}
-          </span>
-          <button
-            type="button"
-            className="page-btn"
-            disabled={!canNext}
-            onClick={() => fetchPage(page + 1)}
-          >
-            다음
-          </button>
-        </div>
-      )}
-
-      {/* Infinite Loading */}
-      {viewMode === "infinite" && loading && (
-        <div className="popular-status">불러오는 중…</div>
+      {/* Infinite View Loading + Sentinel */}
+      {viewMode === "infinite" && (
+        <>
+          {loading && <div className="popular-status">불러오는 중…</div>}
+          <div ref={sentinelRef} className="popular-sentinel" />
+          {!hasMore && movies.length > 0 && (
+            <div className="popular-status">마지막 페이지입니다.</div>
+          )}
+        </>
       )}
 
       {/* Top Button */}
       <button
-        className="scroll-top-btn"
+        type="button"
+        className={`scroll-top-btn ${showTop ? "show" : ""}`}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        aria-label="맨 위로"
       >
-        ↑ TOP
+        ↑
       </button>
     </div>
   );
