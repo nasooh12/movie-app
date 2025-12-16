@@ -1,5 +1,5 @@
 // src/pages/SearchPage.tsx
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import type { Movie } from "../api/tmdb";
 import { searchMovies } from "../api/tmdb";
@@ -14,23 +14,31 @@ type TmdbMovieResponse = {
   results: Movie[];
 };
 
+type SortType = "popularity" | "rating" | "latest";
+
 export default function SearchPage() {
+  const navigate = useNavigate();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [rawMovies, setRawMovies] = useState<Movie[]>([]);
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState<number | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const navigate = useNavigate();
-  const { toggleWishlist, isInWishlist } = useWishlist();
+  // 🔹 필터 상태
+  const [minRating, setMinRating] = useState<number>(0);
+  const [sortType, setSortType] = useState<SortType>("popularity");
 
   const fetchSearch = async (pageToLoad: number) => {
     const trimmed = query.trim();
     if (!trimmed) {
       setError("검색어를 입력해주세요.");
-      setMovies([]);
+      setRawMovies([]);
       setTotalPages(null);
       return;
     }
@@ -44,7 +52,7 @@ export default function SearchPage() {
         pageToLoad
       )) as unknown as TmdbMovieResponse;
 
-      setMovies(data.results);
+      setRawMovies(data.results);
       setPage(data.page);
       setTotalPages(data.total_pages);
       setHasSearched(true);
@@ -60,6 +68,33 @@ export default function SearchPage() {
     void fetchSearch(1);
   };
 
+  // 🔹 필터 + 정렬 적용된 최종 결과
+  const movies = useMemo(() => {
+    let list = [...rawMovies];
+
+    if (minRating > 0) {
+      list = list.filter((m) => m.vote_average >= minRating);
+    }
+
+    if (sortType === "rating") {
+      list.sort((a, b) => b.vote_average - a.vote_average);
+    } else if (sortType === "latest") {
+      list.sort(
+        (a, b) =>
+          new Date(b.release_date).getTime() -
+          new Date(a.release_date).getTime()
+      );
+    }
+    // popularity는 기본 순서 유지
+
+    return list;
+  }, [rawMovies, minRating, sortType]);
+
+  const resetFilters = () => {
+    setMinRating(0);
+    setSortType("popularity");
+  };
+
   const canPrev = page > 1;
   const canNext = totalPages ? page < totalPages : false;
 
@@ -67,16 +102,17 @@ export default function SearchPage() {
     <div className="search-page">
       <PageHero
         title="영화 검색"
-        subtitle="영화 제목으로 TMDB에서 검색할 수 있습니다."
+        subtitle="TMDB에서 원하는 영화를 찾아보세요."
         variant="search"
       />
 
+      {/* 🔹 검색 입력 */}
       <form className="search-form" onSubmit={handleSubmit}>
         <input
           className="search-input"
           type="text"
           value={query}
-          placeholder="검색어를 입력하세요 (예: Inception, Avengers)"
+          placeholder="검색어를 입력하세요"
           onChange={(e) => setQuery(e.target.value)}
         />
         <button className="search-button" type="submit" disabled={loading}>
@@ -84,10 +120,44 @@ export default function SearchPage() {
         </button>
       </form>
 
+      {/* 🔹 필터 UI */}
+      <div className="search-filters">
+        <label>
+          최소 평점
+          <select
+            value={minRating}
+            onChange={(e) => setMinRating(Number(e.target.value))}
+          >
+            <option value={0}>전체</option>
+            <option value={6}>6점 이상</option>
+            <option value={7}>7점 이상</option>
+            <option value={8}>8점 이상</option>
+          </select>
+        </label>
+
+        <label>
+          정렬
+          <select
+            value={sortType}
+            onChange={(e) => setSortType(e.target.value as SortType)}
+          >
+            <option value="popularity">기본</option>
+            <option value="rating">평점순</option>
+            <option value="latest">최신순</option>
+          </select>
+        </label>
+
+        <button
+          type="button"
+          className="filter-reset-btn"
+          onClick={resetFilters}
+        >
+          초기화
+        </button>
+      </div>
+
       {loading && (
-        <div className="search-status">
-          검색 중입니다. 잠시만 기다려주세요…
-        </div>
+        <div className="search-status">검색 중입니다. 잠시만 기다려주세요…</div>
       )}
       {error && <div className="search-status error">{error}</div>}
 
@@ -171,4 +241,3 @@ export default function SearchPage() {
     </div>
   );
 }
-
