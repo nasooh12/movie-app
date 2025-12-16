@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 
@@ -11,14 +11,13 @@ type AuthContextType = {
   isLoggedIn: boolean;
   currentUser: string | null;
 
+  rememberedEmail: string;
   keepLogin: boolean;
+  setRememberedEmail: (email: string) => void;
   setKeepLogin: (v: boolean) => void;
 
-  rememberedEmail: string;
-  setRememberedEmail: (email: string) => void;
-
   tryRegister: (email: string, password: string) => boolean;
-  tryLogin: (email: string, password: string, keepLogin?: boolean) => boolean;
+  tryLogin: (email: string, password: string) => boolean;
   logout: () => void;
 };
 
@@ -27,31 +26,21 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   // 회원 목록
   const [users, setUsers] = useLocalStorage<User[]>("users", []);
-
-  // keep login 설정 (로컬 저장)
-  const [keepLogin, setKeepLogin] = useLocalStorage<boolean>("keepLogin", false);
-
-  // keep login일 때만 유지되는 로그인 유저 (로컬 저장)
-  const [persistUser, setPersistUser] = useLocalStorage<string | null>(
+  // 로그인 유지용 (로그인 성공 시 저장됨)
+  const [currentUser, setCurrentUser] = useLocalStorage<string | null>(
     "currentUser",
     null
   );
 
-  // keep login이 아닐 때는 새로고침하면 풀리도록 메모리에만 둠
-  const [sessionUser, setSessionUser] = useState<string | null>(null);
-
-  // remember me (이메일만 저장)
-  const [rememberedEmail, setRememberedEmailLS] = useLocalStorage<string>(
+  // Remember me: 이메일 기억
+  const [rememberedEmail, setRememberedEmail] = useLocalStorage<string>(
     "rememberedEmail",
     ""
   );
+  // Remember me: 자동 로그인(로그인 유지)
+  const [keepLogin, setKeepLogin] = useLocalStorage<boolean>("keepLogin", false);
 
-  const currentUser = keepLogin ? persistUser : sessionUser;
   const isLoggedIn = currentUser !== null;
-
-  const setRememberedEmail = (email: string) => {
-    setRememberedEmailLS(email);
-  };
 
   const tryRegister = (email: string, password: string) => {
     const exists = users.some((u) => u.email === email);
@@ -61,41 +50,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  const tryLogin = (email: string, password: string, keep?: boolean) => {
+  const tryLogin = (email: string, password: string) => {
     const user = users.find((u) => u.email === email && u.password === password);
     if (!user) return false;
 
-    const useKeep = typeof keep === "boolean" ? keep : keepLogin;
-
-    // 설정 저장
-    setKeepLogin(useKeep);
-
-    if (useKeep) {
-      setPersistUser(email);
-      setSessionUser(null);
-    } else {
-      setSessionUser(email);
-      setPersistUser(null);
-    }
-
+    setCurrentUser(email);
     return true;
   };
 
   const logout = () => {
-    setSessionUser(null);
-    setPersistUser(null);
+    setCurrentUser(null);
+    // keepLogin은 “사용자 체크 상태”로 남겨두는 게 자연스럽지만,
+    // 원하면 여기서 setKeepLogin(false)로 같이 끌 수도 있어.
   };
 
-  // ✅ React Compiler 경고 방지: useMemo 제거하고 value를 바로 생성
   const value: AuthContextType = {
     isLoggedIn,
     currentUser,
 
-    keepLogin,
-    setKeepLogin,
-
     rememberedEmail,
+    keepLogin,
     setRememberedEmail,
+    setKeepLogin,
 
     tryRegister,
     tryLogin,

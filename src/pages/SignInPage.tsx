@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -9,11 +9,30 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+
+  const [rememberMe, setRememberMe] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  const { tryLogin, tryRegister } = useAuth();
+  const {
+    tryLogin,
+    tryRegister,
+    rememberedEmail,
+    keepLogin,
+    setRememberedEmail,
+    setKeepLogin,
+  } = useAuth();
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // 기억된 이메일이 있으면 입력칸 자동 채움
+    if (rememberedEmail) setEmail(rememberedEmail);
+    // keepLogin 켜져 있으면 체크 상태도 맞춰줌
+    setRememberMe(keepLogin);
+  }, [rememberedEmail, keepLogin]);
 
   const resetMessages = () => {
     setError(null);
@@ -29,13 +48,18 @@ export default function SignInPage() {
       return;
     }
 
-    // 이메일 형식 간단 체크 (아주 간단한 버전)
+    // 이메일 형식 체크(간단 버전)
     if (!email.includes("@")) {
       setError("이메일 형식이 올바르지 않습니다.");
       return;
     }
 
     if (mode === "register") {
+      if (!acceptTerms) {
+        setError("약관에 동의해야 회원가입이 가능합니다.");
+        return;
+      }
+
       if (password !== passwordConfirm) {
         setError("비밀번호 확인이 일치하지 않습니다.");
         return;
@@ -51,17 +75,26 @@ export default function SignInPage() {
       setMode("login");
       setPassword("");
       setPasswordConfirm("");
+      setAcceptTerms(false);
       return;
     }
 
-    // mode === "login"
+    // mode === login
     const ok = tryLogin(email, password);
     if (!ok) {
       setError("이메일 또는 비밀번호가 올바르지 않습니다.");
       return;
     }
 
-    // 로그인 성공 → 홈으로 이동
+    // Remember me: 아이디 저장 + 자동로그인
+    if (rememberMe) {
+      setRememberedEmail(email);
+      setKeepLogin(true);
+    } else {
+      setRememberedEmail("");
+      setKeepLogin(false);
+    }
+
     navigate("/");
   };
 
@@ -99,6 +132,7 @@ export default function SignInPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@email.com"
+              autoComplete="email"
             />
           </label>
 
@@ -109,6 +143,7 @@ export default function SignInPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호"
+              autoComplete={mode === "login" ? "current-password" : "new-password"}
             />
           </label>
 
@@ -120,7 +155,32 @@ export default function SignInPage() {
                 value={passwordConfirm}
                 onChange={(e) => setPasswordConfirm(e.target.value)}
                 placeholder="비밀번호 확인"
+                autoComplete="new-password"
               />
+            </label>
+          )}
+
+          {/* ✅ 로그인: Remember me */}
+          {mode === "login" && (
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              Remember me (아이디 저장 + 자동 로그인)
+            </label>
+          )}
+
+          {/* ✅ 회원가입: 약관 동의 */}
+          {mode === "register" && (
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+              />
+              약관에 동의합니다 (필수)
             </label>
           )}
 

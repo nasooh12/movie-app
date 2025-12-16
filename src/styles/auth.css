@@ -108,3 +108,18 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
   opacity: 0.95;
 }
+.auth-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #ddd;
+  margin-top: 6px;
+  user-select: none;
+}
+
+.auth-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: #e50914;
+}
