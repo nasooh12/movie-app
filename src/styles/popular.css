@@ -50,6 +50,12 @@
   color: #ff6b81;
 }
 
+/* ===== Table View Wrapper (스크롤 불가 요구사항 대응) ===== */
+.popular-table-wrap {
+  max-height: calc(100vh - 60px - 200px);
+  overflow: hidden;
+}
+
 /* ===== Grid ===== */
 .popular-grid {
   display: grid;
@@ -172,6 +178,11 @@
   color: #ddd;
 }
 
+/* ===== Infinite sentinel ===== */
+.popular-sentinel {
+  height: 1px;
+}
+
 /* ===== Scroll Top Button ===== */
 .scroll-top-btn {
   position: fixed;
@@ -183,10 +194,19 @@
   border: none;
   background: #e50914;
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
   transition: opacity 0.15s ease, transform 0.15s ease;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+}
+
+.scroll-top-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .scroll-top-btn:hover {
