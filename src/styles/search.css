@@ -192,3 +192,30 @@
   font-size: 13px;
   color: #ddd;
 }
+
+/* 🔹 검색 필터 바 */
+.search-filter-bar {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0 16px;
+}
+
+.search-filter-bar select,
+.search-filter-bar button {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #050711;
+  color: #ddd;
+  font-size: 13px;
+}
+
+.search-filter-bar button {
+  cursor: pointer;
+}
+
+.search-filter-bar button:hover {
+  background: #e50914;
+  border-color: transparent;
+  color: #fff;
+}
